@@ -51,14 +51,12 @@
   <ItemGroup>
     <Compile Include="Controllers\MapController.cs" />
     <Compile Include="Controllers\PhysicsController.cs" />
+    <Compile Include="Domain\AnimationType.cs" />
+    <Compile Include="Domain\Enemy.cs" />
     <Compile Include="Domain\Entity.cs" />
     <Compile Include="Domain\Direction.cs" />
-    <Compile Include="Domain\Enemy.cs" />
     <Compile Include="Domain\GameState.cs" />
-    <Compile Include="Domain\Upgrade.cs" />
     <Compile Include="Domain\Player.cs" />
-    <Compile Include="Domain\Room.cs" />
-    <Compile Include="Domain\TileType.cs" />
     <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

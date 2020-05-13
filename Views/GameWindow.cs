@@ -12,8 +12,9 @@ namespace Timeshift.Views
     public partial class Timeshift : Form
     {
         public Image PlayerSheet;
-        public Entity Player;
-        public Entity Enemy;
+        public Image EnemySheet;
+        public Player Player;
+        public Enemy Enemy;
         public Stopwatch Stopwatch;
 
         public Timeshift()
@@ -41,9 +42,16 @@ namespace Timeshift.Views
             PlayerSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
 
-            Player = new Entity(176, 144, PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+            Player = new Player(176, 144, PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
+            EnemySheet = new Bitmap(Path.Combine(new DirectoryInfo(
+                Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
+
+            Enemy = new Enemy(336, 144, PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+                PlayerModel.WaitingFrames, PlayerSheet);
+
+            MapController.Enemies.Add(Enemy);
             MapController.State = GameState.Normal;
 
             Timer.Start();
@@ -67,7 +75,8 @@ namespace Timeshift.Views
                     MovePlayer(Direction.Right);
                     break;
                 case Keys.Space:
-                    Player.SetAnimationConfiguration(6);
+                    Player.Attack();
+                    Player.SetAnimationConfiguration(AnimationType.Attack);
                     break;
                 case Keys.ShiftKey:
                     MapController.State = GameState.Frozen;
@@ -91,8 +100,9 @@ namespace Timeshift.Views
                     : (direction == Direction.Right ? Player.MoveRange : Player.DirX);
                 Player.Flip = direction == Direction.Right ? 1
                     : (direction == Direction.Left ? -1 : Player.Flip);
+                Player.Direction = direction;
                 Player.IsMoving = true;
-                Player.SetAnimationConfiguration(1);
+                Player.SetAnimationConfiguration(AnimationType.Run);
             }
         }
 
@@ -120,14 +130,16 @@ namespace Timeshift.Views
             if (Player.DirX == 0 && Player.DirY == 0)
             {
                 Player.IsMoving = false;
-                if (Player.CurrentAnimation != 6)
-                Player.SetAnimationConfiguration(0);
+                if (Player.CurrentAnimation != AnimationType.Attack)
+                Player.SetAnimationConfiguration(AnimationType.Idle);
             }
         }
 
         public void Update(object sender, EventArgs e)
         {
             if (Player.IsMoving) Player.Move();
+            foreach (var enemy in MapController.Enemies)
+                if (enemy.IsMoving) enemy.Move();
             Invalidate();
         }
 
@@ -137,14 +149,24 @@ namespace Timeshift.Views
 
             MapController.DrawMap(g);
             Player.PlayAnimation(g);
+            foreach (var enemy in MapController.Enemies)
+                enemy.PlayAnimation(g);
 
             if (Stopwatch.ElapsedMilliseconds >= 10000)
-                Player.SetAnimationConfiguration(2);
+                Player.SetAnimationConfiguration(AnimationType.Waiting);
 
+            DrawDebugInfo(g);
+        }
+
+        private void DrawDebugInfo(Graphics g)
+        {
             g.DrawString(Player.PosX.ToString() + " X " + Player.PosY.ToString() + " Y", new Font("Arial", 16),
                 new SolidBrush(Color.White), new PointF(Width - 160, 16));
             g.DrawString((Stopwatch.ElapsedMilliseconds / 1000).ToString() + " s", new Font("Arial", 16),
                 new SolidBrush(Color.White), new PointF(Width - 160, 48));
+            foreach (var enemy in MapController.Enemies)
+                g.DrawString((enemy.Health).ToString(), new Font("Arial", 16),
+                new SolidBrush(Color.Red), new PointF(enemy.PosX - 8, enemy.PosY - 8));
         }
     }
 }

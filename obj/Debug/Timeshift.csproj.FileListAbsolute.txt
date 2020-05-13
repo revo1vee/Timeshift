@@ -18,3 +18,13 @@ C:\Users\PC\Desktop\Timeshift\obj\Debug\Timeshift.csproj.CoreCompileInputs.cache
 C:\Users\PC\Desktop\Timeshift\obj\Debug\Timeshift.exe
 C:\Users\PC\Desktop\Timeshift\obj\Debug\Timeshift.pdb
 C:\Users\PC\Desktop\Timeshift\obj\Debug\Timeshift.csprojAssemblyReference.cache
+C:\Users\PC\Documents\GitHub\Timeshift\bin\Debug\Timeshift.exe.config
+C:\Users\PC\Documents\GitHub\Timeshift\bin\Debug\Timeshift.exe
+C:\Users\PC\Documents\GitHub\Timeshift\bin\Debug\Timeshift.pdb
+C:\Users\PC\Documents\GitHub\Timeshift\obj\Debug\Timeshift.csprojAssemblyReference.cache
+C:\Users\PC\Documents\GitHub\Timeshift\obj\Debug\Timeshift.Properties.Resources.resources
+C:\Users\PC\Documents\GitHub\Timeshift\obj\Debug\Timeshift.Views.Timeshift.resources
+C:\Users\PC\Documents\GitHub\Timeshift\obj\Debug\Timeshift.csproj.GenerateResource.cache
+C:\Users\PC\Documents\GitHub\Timeshift\obj\Debug\Timeshift.csproj.CoreCompileInputs.cache
+C:\Users\PC\Documents\GitHub\Timeshift\obj\Debug\Timeshift.exe
+C:\Users\PC\Documents\GitHub\Timeshift\obj\Debug\Timeshift.pdb

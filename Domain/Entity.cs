@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using Timeshift.Controllers;
 
 namespace Timeshift.Domain
@@ -15,14 +14,16 @@ namespace Timeshift.Domain
         public int DashX;
         public int DashY;
 
+        public int Health;
+
         public bool IsMoving;
         public int MoveRange;
         public Direction Direction;
 
         public int Flip;
 
-        public int PrevAnimation;
-        public int CurrentAnimation;
+        public AnimationType PrevAnimation;
+        public AnimationType CurrentAnimation;
         public int CurrentFrame;
         public int CurrentLimit;
         public int IdleFrames;
@@ -35,27 +36,6 @@ namespace Timeshift.Domain
 
         public Image SpriteSheet;
 
-        public Queue<Direction> TimeMoves;
-
-        public Entity(int x, int y, int idle, int run, int attack, int wait, Image sprites)
-        {
-            PosX = x;
-            PosY = y;
-            MoveRange = 32;
-            IdleFrames = idle;
-            RunFrames = run;
-            AttackFrames = attack;
-            WaitingFrames = wait;
-            SpriteSheet = sprites;
-            SizeX = 50;
-            SizeY = 37;
-            CurrentAnimation = 0;
-            CurrentFrame = 0;
-            CurrentLimit = IdleFrames;
-            Flip = 1;
-            TimeMoves = new Queue<Direction>();
-        }
-
         public void Move()
         {
             if (MapController.State == GameState.Normal)
@@ -65,51 +45,26 @@ namespace Timeshift.Domain
             }
         }
 
-        public void TimeDash()
-        {
-            while (TimeMoves.Count > 0)
-            {
-                switch (TimeMoves.Dequeue())
-                {
-                    case Direction.Up:
-                        DirY = -MoveRange;
-                        break;
-                    case Direction.Left:
-                        DirX = -MoveRange;
-                        break;
-                    case Direction.Down:
-                        DirY = MoveRange;
-                        break;
-                    case Direction.Right:
-                        DirX = MoveRange;
-                        break;
-                }
-                Move();
-                DirX = 0;
-                DirY = 0;
-            }
-        }
-
         public void PlayAnimation(Graphics g)
         {
-            if (CurrentAnimation == 6 && CurrentFrame == CurrentLimit - 1)
-                if (IsMoving) SetAnimationConfiguration(1);
-                else SetAnimationConfiguration(0);
+            if (CurrentAnimation == AnimationType.Attack && CurrentFrame == CurrentLimit - 1)
+                if (IsMoving) SetAnimationConfiguration(AnimationType.Run);
+                else SetAnimationConfiguration(AnimationType.Idle);
 
             if (MapController.State == GameState.Normal)
             if (CurrentFrame < CurrentLimit - 1) CurrentFrame++;
-            else if (CurrentAnimation == 1) CurrentFrame = 1;
+            else if (CurrentAnimation == AnimationType.Run) CurrentFrame = 1;
             else CurrentFrame = 0;
 
-            if (CurrentAnimation == 2)
+            if (CurrentAnimation == AnimationType.Waiting)
                 g.DrawImage(SpriteSheet, new Rectangle(new Point(PosX - Flip * SizeX, PosY), new Size(Flip * SizeX * 2, SizeY * 2)),
-                50 * (CurrentFrame + 4), 37 * (CurrentAnimation - 2), SizeX, SizeY, GraphicsUnit.Pixel);
+                50 * (CurrentFrame + 4), 37 * ((int)CurrentAnimation - 2), SizeX, SizeY, GraphicsUnit.Pixel);
             else
                 g.DrawImage(SpriteSheet, new Rectangle(new Point(PosX - Flip * SizeX, PosY), new Size(Flip * SizeX * 2, SizeY * 2)),
-                    50 * CurrentFrame, 37 * CurrentAnimation, SizeX, SizeY, GraphicsUnit.Pixel);
+                    50 * CurrentFrame, 37 * (int)CurrentAnimation, SizeX, SizeY, GraphicsUnit.Pixel);
         }
 
-        public void SetAnimationConfiguration(int newAnimation)
+        public void SetAnimationConfiguration(AnimationType newAnimation)
         {
             if (CurrentAnimation != newAnimation && MapController.State == GameState.Normal)
             {
@@ -119,16 +74,16 @@ namespace Timeshift.Domain
 
                 switch (newAnimation)
                 {
-                    case 0:
+                    case AnimationType.Idle:
                         CurrentLimit = IdleFrames;
                         break;
-                    case 1:
+                    case AnimationType.Run:
                         CurrentLimit = RunFrames;
                         break;
-                    case 6:
+                    case AnimationType.Attack:
                         CurrentLimit = AttackFrames;
                         break;
-                    case 2:
+                    case AnimationType.Waiting:
                         CurrentLimit = WaitingFrames;
                         break;
                 }
