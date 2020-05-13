@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Timeshift.Controllers;
 using Timeshift.Domain;
@@ -140,7 +141,9 @@ namespace Timeshift.Views
         {
             if (Player.IsMoving) Player.Move();
             foreach (var enemy in MapController.Enemies)
-                if (enemy.IsMoving) enemy.Move();
+            {
+                
+            }
             Invalidate();
         }
 

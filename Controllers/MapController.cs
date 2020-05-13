@@ -14,14 +14,14 @@ namespace Timeshift.Controllers
         public static Dictionary<int, Point> TilesSprites;
         public const int TileSize = 32;
         public static GameState State;
-        public static HashSet<Entity> Enemies;
+        public static HashSet<Enemy> Enemies;
 
         public static void Initialize()
         {
             Map = GetMap();
             SpriteSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
-            Enemies = new HashSet<Entity>();
+            Enemies = new HashSet<Enemy>();
             TilesSprites = new Dictionary<int, Point>();
             SetTilesSprites();
         }

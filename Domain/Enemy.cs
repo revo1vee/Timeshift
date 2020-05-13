@@ -25,7 +25,12 @@ namespace Timeshift.Domain
             Health = 3;
         }
 
-        public static IEnumerable<SinglyLinkedList<Point>> FindPathsToPlayer(Point start, Point target)
+        public void SetMovementDirection(Point playerPos)
+        {
+
+        }
+
+        public IEnumerable<SinglyLinkedList<Point>> FindPathsToPlayer(Point start, Point target)
         {
             var visited = new HashSet<Point>();
             var queue = new Queue<SinglyLinkedList<Point>>();
