@@ -35,27 +35,28 @@ namespace Timeshift.Views
         public void Initialize()
         {
             MapController.Initialize();
+            InitializeEntities();
+            Height = MapController.GetPixelHeight();
+            Width = MapController.GetPixelWidth();
+            Timer.Start();
+            Stopwatch = Stopwatch.StartNew();
+        }
 
-            Height = MapController.GetHeight();
-            Width = MapController.GetWidth();
-
+        private void InitializeEntities()
+        {
             PlayerSheet = new Bitmap(Path.Combine(new DirectoryInfo(
-                Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
+                            Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
 
-            Player = new Player(176, 144, PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+            Player = new Player(new Point(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
             EnemySheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
 
-            Enemy = new Enemy(336, 144, PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+            Enemy = new Enemy(new Point(336, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
             MapController.Enemies.Add(Enemy);
-            MapController.State = GameState.Normal;
-
-            Timer.Start();
-            Stopwatch = Stopwatch.StartNew();
         }
 
         public void OnPress(object sender, KeyEventArgs e)
@@ -63,16 +64,16 @@ namespace Timeshift.Views
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    MovePlayer(Direction.Up);
+                    ChangePlayerDirection(Direction.Up);
                     break;
                 case Keys.A:
-                    MovePlayer(Direction.Left);
+                    ChangePlayerDirection(Direction.Left);
                     break;
                 case Keys.S:
-                    MovePlayer(Direction.Down);
+                    ChangePlayerDirection(Direction.Down);
                     break;
                 case Keys.D:
-                    MovePlayer(Direction.Right);
+                    ChangePlayerDirection(Direction.Right);
                     break;
                 case Keys.Space:
                     Player.Attack();
@@ -88,19 +89,19 @@ namespace Timeshift.Views
             Stopwatch.Restart();
         }
 
-        private void MovePlayer(Direction direction)
+        private void ChangePlayerDirection(Direction direction)
         {
             if (MapController.State == GameState.Frozen)
                 Player.TimeMoves.Enqueue(direction);
             else
             {
-                Player.DirY = direction == Direction.Up ? -Player.MoveRange
-                    : (direction == Direction.Down ? Player.MoveRange : Player.DirY);
-                Player.DirX = direction == Direction.Left ? -Player.MoveRange
-                    : (direction == Direction.Right ? Player.MoveRange : Player.DirX);
-                Player.Flip = direction == Direction.Right ? 1
-                    : (direction == Direction.Left ? -1 : Player.Flip);
-                Player.Direction = direction;
+                if (direction == Direction.Left || direction == Direction.Right)
+                {
+                    Player.MoveDirection.X = (int)direction;
+                    Player.Direction = direction;
+                }
+                else Player.MoveDirection.Y = (int)direction / 2; 
+                Player.Flip = direction == Direction.Right ? 1 : (direction == Direction.Left ? -1 : Player.Flip);
                 Player.IsMoving = true;
                 Player.SetAnimationConfiguration(AnimationType.Run);
             }
@@ -111,23 +112,23 @@ namespace Timeshift.Views
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    Player.DirY = 0;
+                    Player.MoveDirection.Y = 0;
                     break;
                 case Keys.A:
-                    Player.DirX = 0;
+                    Player.MoveDirection.X = 0;
                     break;
                 case Keys.S:
-                    Player.DirY = 0;
+                    Player.MoveDirection.Y = 0;
                     break;
                 case Keys.D:
-                    Player.DirX = 0;
+                    Player.MoveDirection.X = 0;
                     break;
                 case Keys.ShiftKey:
                     MapController.State = GameState.Normal;
                     Player.TimeDash();
                     break;
             }
-            if (Player.DirX == 0 && Player.DirY == 0)
+            if (Player.MoveDirection == new Point(0, 0))
             {
                 Player.IsMoving = false;
                 if (Player.CurrentAnimation != AnimationType.Attack)
@@ -160,13 +161,13 @@ namespace Timeshift.Views
 
         private void DrawDebugInfo(Graphics g)
         {
-            g.DrawString(Player.PosX.ToString() + " X " + Player.PosY.ToString() + " Y", new Font("Arial", 16),
-                new SolidBrush(Color.White), new PointF(Width - 160, 16));
+            g.DrawString(Player.Position.ToString(), new Font("Arial", 16),
+                new SolidBrush(Color.White), new PointF(Width - 176, 16));
             g.DrawString((Stopwatch.ElapsedMilliseconds / 1000).ToString() + " s", new Font("Arial", 16),
-                new SolidBrush(Color.White), new PointF(Width - 160, 48));
+                new SolidBrush(Color.White), new PointF(Width - 176, 48));
             foreach (var enemy in MapController.Enemies)
-                g.DrawString((enemy.Health).ToString(), new Font("Arial", 16),
-                new SolidBrush(Color.Red), new PointF(enemy.PosX - 8, enemy.PosY - 8));
+                g.DrawString(enemy.Health.ToString(), new Font("Arial", 16),
+                new SolidBrush(Color.Red), new PointF(enemy.Position.X - 8, enemy.Position.Y - 8));
         }
     }
 }

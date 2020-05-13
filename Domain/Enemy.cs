@@ -1,27 +1,45 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
+using Timeshift.Controllers;
 
 namespace Timeshift.Domain
 {
     public class Enemy : Entity
     {
-        public Enemy(int x, int y, int idle, int run, int attack, int wait, Image sprites)
+        public Enemy(Point position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
         {
-            PosX = x;
-            PosY = y;
-            MoveRange = 32;
+            Position = position;
+            IdleFrames = idleFrames;
+            RunFrames = runFrames;
+            AttackFrames = attackFrames;
+            WaitingFrames = waitFrames;
+            SpriteSheet = spriteSheet;
+            MovementRange = 32;
             Direction = Direction.Right;
-            IdleFrames = idle;
-            RunFrames = run;
-            AttackFrames = attack;
-            WaitingFrames = wait;
-            SpriteSheet = sprites;
             SizeX = 50;
             SizeY = 37;
             CurrentAnimation = AnimationType.Idle;
             CurrentFrame = 0;
-            CurrentLimit = IdleFrames;
+            CurrentFrameLimit = IdleFrames;
             Flip = 1;
             Health = 3;
+        }
+
+        public static IEnumerable<SinglyLinkedList<Point>> FindPathsToPlayer(Point start, Point target)
+        {
+            var visited = new HashSet<Point>();
+            var queue = new Queue<SinglyLinkedList<Point>>();
+            queue.Enqueue(new SinglyLinkedList<Point>(start));
+            while (queue.Count != 0)
+            {
+                var path = queue.Dequeue();
+                if (!MapController.InBounds(path.Value.X, path.Value.Y) || visited.Contains(path.Value)
+                    || true) continue;
+                visited.Add(path.Value);
+                if (path.Value == target) yield return path;
+                foreach (var direction in PossibleDirections())
+                    queue.Enqueue(new SinglyLinkedList<Point>(path.Value + direction));
+            }
         }
     }
 }

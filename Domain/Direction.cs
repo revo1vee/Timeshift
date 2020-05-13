@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System.Drawing;
 namespace Timeshift.Domain
 {
     public enum Direction
     {
-        Up,
-        Down,
-        Left,
-        Right
+        Up = -2,
+        Down = 2,
+        Left = -1,
+        Right = 1
     }
 }

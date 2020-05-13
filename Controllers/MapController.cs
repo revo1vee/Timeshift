@@ -11,6 +11,7 @@ namespace Timeshift.Controllers
         public const int MapWidth = 20;
         public static int[,] Map = new int[MapHeight, MapWidth];
         public static Image SpriteSheet;
+        public static Dictionary<int, Point> TilesSprites;
         public const int TileSize = 32;
         public static GameState State;
         public static HashSet<Entity> Enemies;
@@ -21,6 +22,24 @@ namespace Timeshift.Controllers
             SpriteSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
             Enemies = new HashSet<Entity>();
+            TilesSprites = new Dictionary<int, Point>();
+            SetTilesSprites();
+        }
+
+        public static void SetTilesSprites()
+        {
+            TilesSprites[1] = new Point(16, 64);
+            TilesSprites[2] = new Point(16, 16);
+            TilesSprites[3] = new Point(16, 128);
+            TilesSprites[4] = new Point(0, 128);
+            TilesSprites[5] = new Point(16, 0);
+            TilesSprites[6] = new Point(80, 144);
+            TilesSprites[7] = new Point(64, 144);
+            TilesSprites[8] = new Point(80, 128);
+            TilesSprites[9] = new Point(64, 128);
+            TilesSprites[10] = new Point(80, 80);
+            TilesSprites[11] = new Point(80, 96);
+            TilesSprites[12] = new Point(80, 112);
         }
 
         public static int[,] GetMap()
@@ -49,78 +68,25 @@ namespace Timeshift.Controllers
             };
         }
 
-        public static void SeedMap(Graphics g)
-        {
-            for (int i = 0; i < MapHeight; i++)
-                for (int j = 0; j < MapWidth; j++)
-                {
-                    if (Map[i, j] == 10)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            80, 80, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 11)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            80, 96, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 12)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            80, 112, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                }
-        }
-
         public static void DrawMap(Graphics g)
         {
             for (int i = 0; i < MapHeight; i++)
                 for (int j = 0; j < MapWidth; j++)
                 {
                     g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                        16, 64, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    if (Map[i, j] == 2)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            16, 16, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 3)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            16, 128, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 4)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            0, 128, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 5)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            16, 0, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 6)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            80, 144, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 7)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            64, 144, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if (Map[i, j] == 8)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            80, 128, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
-                    else if(Map[i, j] == 9)
-                    {
-                        g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
-                            64, 128, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
-                    }
+                        TilesSprites[1].X, TilesSprites[1].Y, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
+                    g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
+                            TilesSprites[Map[i,j]].X, TilesSprites[Map[i, j]].Y, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
                 }
             SeedMap(g);
+        }
+
+        public static void SeedMap(Graphics g)
+        {
+            for (int i = 0; i < MapHeight; i++)
+                for (int j = 0; j < MapWidth; j++)
+                    g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
+                            TilesSprites[Map[i, j]].X, TilesSprites[Map[i, j]].Y, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
         }
 
         public static bool InBounds(int x, int y)
@@ -128,12 +94,12 @@ namespace Timeshift.Controllers
             return x >= 0 && x < MapWidth && y >= 0 && y < MapHeight;
         }
 
-        public static int GetWidth()
+        public static int GetPixelWidth()
         {
             return TileSize * MapWidth + 15;
         }
 
-        public static int GetHeight()
+        public static int GetPixelHeight()
         {
             return TileSize * MapHeight + 39;
         }

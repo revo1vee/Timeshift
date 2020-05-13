@@ -6,10 +6,10 @@ namespace Timeshift.Controllers
     {
         public static bool IsCollide(Entity entity, int dirX, int dirY)
         {
-            if (dirX != 0) dirX /= 32;
-            if (dirY != 0) dirY /= 32;
-            dirX = entity.PosX / MapController.TileSize + dirX;
-            dirY = (entity.PosY + 48) / MapController.TileSize + dirY;
+            if (dirX != 0) dirX /= entity.MovementRange;
+            if (dirY != 0) dirY /= entity.MovementRange;
+            dirX = entity.Position.X / MapController.TileSize + dirX;
+            dirY = (entity.Position.Y + (int)(entity.MovementRange * 1.5)) / MapController.TileSize + dirY;
 
             return !MapController.InBounds(dirX, dirY) || MapController.Map[dirY, dirX] != 1;
         }

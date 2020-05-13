@@ -57,6 +57,7 @@
     <Compile Include="Domain\Direction.cs" />
     <Compile Include="Domain\GameState.cs" />
     <Compile Include="Domain\Player.cs" />
+    <Compile Include="Domain\SinglyLinkedList.cs" />
     <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

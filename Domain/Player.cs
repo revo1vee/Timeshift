@@ -8,22 +8,21 @@ namespace Timeshift.Domain
     {
         public Queue<Direction> TimeMoves;
 
-        public Player(int x, int y, int idle, int run, int attack, int wait, Image sprites)
+        public Player(Point position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
         {
-            PosX = x;
-            PosY = y;
-            MoveRange = 32;
+            Position = position;
+            IdleFrames = idleFrames;
+            RunFrames = runFrames;
+            AttackFrames = attackFrames;
+            WaitingFrames = waitFrames;
+            SpriteSheet = spriteSheet;
+            MovementRange = 32;
             Direction = Direction.Right;
-            IdleFrames = idle;
-            RunFrames = run;
-            AttackFrames = attack;
-            WaitingFrames = wait;
-            SpriteSheet = sprites;
             SizeX = 50;
             SizeY = 37;
             CurrentAnimation = AnimationType.Idle;
             CurrentFrame = 0;
-            CurrentLimit = IdleFrames;
+            CurrentFrameLimit = IdleFrames;
             Flip = 1;
             Health = 3;
             TimeMoves = new Queue<Direction>();
@@ -33,10 +32,10 @@ namespace Timeshift.Domain
         {
             if (MapController.State == GameState.Normal)
             {
-                var attackX = Direction == Direction.Right ? MoveRange : (Direction == Direction.Left ? -MoveRange : 0);
+                var attackDirection = Direction == Direction.Right ? MovementRange : (Direction == Direction.Left ? -MovementRange : 0);
                 foreach (var enemy in MapController.Enemies)
                 {
-                    if (enemy.PosX == attackX + PosX && enemy.PosY == PosY)
+                    if (enemy.Position.X == Position.X + attackDirection && enemy.Position.Y == Position.Y)
                         enemy.Health--;
                     if (enemy.Health == 0)
                         enemy.SetAnimationConfiguration(AnimationType.Waiting);
@@ -51,21 +50,20 @@ namespace Timeshift.Domain
                 switch (TimeMoves.Dequeue())
                 {
                     case Direction.Up:
-                        DirY = -MoveRange;
+                        MoveDirection.Y = -1;
                         break;
                     case Direction.Left:
-                        DirX = -MoveRange;
+                        MoveDirection.X = -1;
                         break;
                     case Direction.Down:
-                        DirY = MoveRange;
+                        MoveDirection.Y = 1;
                         break;
                     case Direction.Right:
-                        DirX = MoveRange;
+                        MoveDirection.X = 1;
                         break;
                 }
                 Move();
-                DirX = 0;
-                DirY = 0;
+                MoveDirection = Point.Empty;
             }
         }
     }
