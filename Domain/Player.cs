@@ -6,9 +6,9 @@ namespace Timeshift.Domain
 {
     public class Player : Entity
     {
-        public Queue<Direction> TimeMoves;
+        public Stack<TilePoint> TimeMoves;
 
-        public Player(Point position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
+        public Player(TilePoint position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
         {
             Position = position;
             IdleFrames = idleFrames;
@@ -16,8 +16,9 @@ namespace Timeshift.Domain
             AttackFrames = attackFrames;
             WaitingFrames = waitFrames;
             SpriteSheet = spriteSheet;
-            MovementRange = 32;
+            MovementRange = 8;
             Direction = Direction.Right;
+            MoveDirection = new TilePoint();
             SizeX = 50;
             SizeY = 37;
             CurrentAnimation = AnimationType.Idle;
@@ -25,17 +26,20 @@ namespace Timeshift.Domain
             CurrentFrameLimit = IdleFrames;
             Flip = 1;
             Health = 3;
-            TimeMoves = new Queue<Direction>();
+            TimeMoves = new Stack<TilePoint>();
+            TimeMoves.Push(Position);
         }
 
         public void Attack()
         {
             if (MapController.State == GameState.Normal)
             {
-                var attackDirection = Direction == Direction.Right ? MovementRange : (Direction == Direction.Left ? -MovementRange : 0);
+                var attackRange = Direction == Direction.Right ? MapController.TileSize
+                    : (Direction == Direction.Left ? -MapController.TileSize : 0);
                 foreach (var enemy in MapController.Enemies)
                 {
-                    if (enemy.Position.X == Position.X + attackDirection && enemy.Position.Y == Position.Y)
+                    if (MapController.GetPointFromCoordinates(new TilePoint(Position.X + attackRange, Position.Y))
+                        .Equals(MapController.GetPointFromCoordinates(new TilePoint(enemy.Position.X, enemy.Position.Y))))
                         enemy.Health--;
                     if (enemy.Health == 0)
                         enemy.SetAnimationConfiguration(AnimationType.Waiting);
@@ -45,26 +49,17 @@ namespace Timeshift.Domain
 
         public void TimeDash()
         {
-            while (TimeMoves.Count > 0)
+            while (TimeMoves.Count > 1)
             {
-                switch (TimeMoves.Dequeue())
+                var dashPoint = TimeMoves.Pop();
+                if (!PhysicsController.IsCollide(dashPoint))
                 {
-                    case Direction.Up:
-                        MoveDirection.Y = -1;
-                        break;
-                    case Direction.Left:
-                        MoveDirection.X = -1;
-                        break;
-                    case Direction.Down:
-                        MoveDirection.Y = 1;
-                        break;
-                    case Direction.Right:
-                        MoveDirection.X = 1;
-                        break;
+                    Position = dashPoint;
+                    break;
                 }
-                Move();
-                MoveDirection = Point.Empty;
             }
+            TimeMoves = new Stack<TilePoint>();
+            TimeMoves.Push(Position);
         }
     }
 }

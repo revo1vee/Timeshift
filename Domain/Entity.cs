@@ -6,12 +6,12 @@ namespace Timeshift.Domain
 {
     public class Entity
     {
-        public Point Position;
+        public TilePoint Position;
         public int Health;
 
         public bool IsMoving;
         public int MovementRange;
-        public Point MoveDirection;
+        public TilePoint MoveDirection;
         public Direction Direction;
 
         public Image SpriteSheet;
@@ -31,8 +31,10 @@ namespace Timeshift.Domain
         {
             if (MapController.State == GameState.Normal)
             {
-                if (!PhysicsController.IsCollide(this, MoveDirection.X * MovementRange, 0)) Position.X += MoveDirection.X * MovementRange;
-                if (!PhysicsController.IsCollide(this, 0, MoveDirection.Y * MovementRange)) Position.Y += MoveDirection.Y * MovementRange;
+                if (!PhysicsController.IsCollide(new TilePoint(Position.X + MoveDirection.X * MovementRange + 15 * MoveDirection.X, Position.Y))) 
+                    Position.X += MoveDirection.X * MovementRange;
+                if (!PhysicsController.IsCollide(new TilePoint(Position.X, Position.Y + MoveDirection.Y * MovementRange)))
+                    Position.Y += MoveDirection.Y * MovementRange;
             }
         }
 

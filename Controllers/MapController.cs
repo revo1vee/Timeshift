@@ -11,7 +11,7 @@ namespace Timeshift.Controllers
         public const int MapWidth = 20;
         public static int[,] Map = new int[MapHeight, MapWidth];
         public static Image SpriteSheet;
-        public static Dictionary<int, Point> TilesSprites;
+        public static Dictionary<int, TilePoint> TilesSprites;
         public const int TileSize = 32;
         public static GameState State;
         public static HashSet<Enemy> Enemies;
@@ -22,24 +22,24 @@ namespace Timeshift.Controllers
             SpriteSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
             Enemies = new HashSet<Enemy>();
-            TilesSprites = new Dictionary<int, Point>();
+            TilesSprites = new Dictionary<int, TilePoint>();
             SetTilesSprites();
         }
 
         public static void SetTilesSprites()
         {
-            TilesSprites[1] = new Point(16, 64);
-            TilesSprites[2] = new Point(16, 16);
-            TilesSprites[3] = new Point(16, 128);
-            TilesSprites[4] = new Point(0, 128);
-            TilesSprites[5] = new Point(16, 0);
-            TilesSprites[6] = new Point(80, 144);
-            TilesSprites[7] = new Point(64, 144);
-            TilesSprites[8] = new Point(80, 128);
-            TilesSprites[9] = new Point(64, 128);
-            TilesSprites[10] = new Point(80, 80);
-            TilesSprites[11] = new Point(80, 96);
-            TilesSprites[12] = new Point(80, 112);
+            TilesSprites[1] = new TilePoint(16, 64);
+            TilesSprites[2] = new TilePoint(16, 16);
+            TilesSprites[3] = new TilePoint(16, 128);
+            TilesSprites[4] = new TilePoint(0, 128);
+            TilesSprites[5] = new TilePoint(16, 0);
+            TilesSprites[6] = new TilePoint(80, 144);
+            TilesSprites[7] = new TilePoint(64, 144);
+            TilesSprites[8] = new TilePoint(80, 128);
+            TilesSprites[9] = new TilePoint(64, 128);
+            TilesSprites[10] = new TilePoint(80, 80);
+            TilesSprites[11] = new TilePoint(80, 96);
+            TilesSprites[12] = new TilePoint(80, 112);
         }
 
         public static int[,] GetMap()
@@ -87,6 +87,11 @@ namespace Timeshift.Controllers
                 for (int j = 0; j < MapWidth; j++)
                     g.DrawImage(SpriteSheet, new Rectangle(new Point(j * TileSize, i * TileSize), new Size(TileSize, TileSize)),
                             TilesSprites[Map[i, j]].X, TilesSprites[Map[i, j]].Y, TileSize / 2, TileSize / 2, GraphicsUnit.Pixel);
+        }
+
+        public static TilePoint GetPointFromCoordinates(TilePoint point)
+        {
+            return new TilePoint(point.X / TileSize, (point.Y / TileSize) + 2);
         }
 
         public static bool InBounds(int x, int y)

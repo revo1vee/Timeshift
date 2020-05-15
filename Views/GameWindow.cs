@@ -24,7 +24,7 @@ namespace Timeshift.Views
 
             FormBorderStyle = FormBorderStyle.FixedDialog;
 
-            Timer.Interval = 100;
+            Timer.Interval = 75;
             Timer.Tick += new EventHandler(Update);
 
             KeyDown += new KeyEventHandler(OnPress);
@@ -48,13 +48,13 @@ namespace Timeshift.Views
             PlayerSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                             Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
 
-            Player = new Player(new Point(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+            Player = new Player(new TilePoint(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
             EnemySheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
 
-            Enemy = new Enemy(new Point(336, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+            Enemy = new Enemy(new TilePoint(336, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
             MapController.Enemies.Add(Enemy);
@@ -65,16 +65,28 @@ namespace Timeshift.Views
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    ChangePlayerDirection(Direction.Up);
+                    if (MapController.State == GameState.Frozen)
+                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X, 
+                            Player.TimeMoves.Peek().Y - Player.MovementRange * 4));
+                    else ChangePlayerDirection(Direction.Up);
                     break;
                 case Keys.A:
-                    ChangePlayerDirection(Direction.Left);
+                    if (MapController.State == GameState.Frozen)
+                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X - Player.MovementRange * 4, 
+                            Player.TimeMoves.Peek().Y));
+                    else ChangePlayerDirection(Direction.Left);
                     break;
                 case Keys.S:
-                    ChangePlayerDirection(Direction.Down);
+                    if (MapController.State == GameState.Frozen)
+                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X, 
+                            Player.TimeMoves.Peek().Y + Player.MovementRange * 4));
+                    else ChangePlayerDirection(Direction.Down);
                     break;
                 case Keys.D:
-                    ChangePlayerDirection(Direction.Right);
+                    if (MapController.State == GameState.Frozen)
+                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X + Player.MovementRange * 4, 
+                            Player.TimeMoves.Peek().Y));
+                    else ChangePlayerDirection(Direction.Right);
                     break;
                 case Keys.Space:
                     Player.Attack();
@@ -92,20 +104,15 @@ namespace Timeshift.Views
 
         private void ChangePlayerDirection(Direction direction)
         {
-            if (MapController.State == GameState.Frozen)
-                Player.TimeMoves.Enqueue(direction);
-            else
+            if (direction == Direction.Left || direction == Direction.Right)
             {
-                if (direction == Direction.Left || direction == Direction.Right)
-                {
-                    Player.MoveDirection.X = (int)direction;
-                    Player.Direction = direction;
-                }
-                else Player.MoveDirection.Y = (int)direction / 2; 
-                Player.Flip = direction == Direction.Right ? 1 : (direction == Direction.Left ? -1 : Player.Flip);
-                Player.IsMoving = true;
-                Player.SetAnimationConfiguration(AnimationType.Run);
+                Player.MoveDirection.X = (int)direction;
+                Player.Direction = direction;
             }
+            else Player.MoveDirection.Y = (int)direction / 2;
+            Player.Flip = direction == Direction.Right ? 1 : (direction == Direction.Left ? -1 : Player.Flip);
+            Player.IsMoving = true;
+            Player.SetAnimationConfiguration(AnimationType.Run);
         }
 
         public void OnKeyUp(object sender, KeyEventArgs e)
@@ -129,7 +136,7 @@ namespace Timeshift.Views
                     Player.TimeDash();
                     break;
             }
-            if (Player.MoveDirection == new Point(0, 0))
+            if (Player.MoveDirection.Equals(new TilePoint()))
             {
                 Player.IsMoving = false;
                 if (Player.CurrentAnimation != AnimationType.Attack)
