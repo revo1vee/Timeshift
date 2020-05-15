@@ -12,7 +12,7 @@ namespace Timeshift.Views
     public partial class Timeshift : Form
     {
         public Image PlayerSheet;
-        public Image EnemySheet;
+        public Image TilesSheet;
         public Player Player;
         public Enemy Enemy;
         public Stopwatch Stopwatch;
@@ -35,6 +35,7 @@ namespace Timeshift.Views
         public void Initialize()
         {
             MapController.Initialize();
+            MapController.State = GameState.Normal;
             InitializeEntities();
             Height = MapController.GetPixelHeight();
             Width = MapController.GetPixelWidth();
@@ -48,14 +49,13 @@ namespace Timeshift.Views
             PlayerSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                             Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
 
+            TilesSheet = new Bitmap(Path.Combine(new DirectoryInfo(
+                Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
+
             Player = new Player(new TilePoint(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
-            EnemySheet = new Bitmap(Path.Combine(new DirectoryInfo(
-                Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
-
-            Enemy = new Enemy(new TilePoint(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
-                PlayerModel.WaitingFrames, EnemySheet);
+            Enemy = new Enemy(new TilePoint(352, 144), EnemyModel.RunFrames, TilesSheet);
 
             MapController.Enemies.Add(Enemy);
         }
@@ -66,26 +66,22 @@ namespace Timeshift.Views
             {
                 case Keys.W:
                     if (MapController.State == GameState.Frozen)
-                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X, 
-                            Player.TimeMoves.Peek().Y - Player.MovementRange * 4));
+                        AddTimeMove(0,-Player.MovementRange * 4);
                     else ChangePlayerDirection(Direction.Up);
                     break;
                 case Keys.A:
                     if (MapController.State == GameState.Frozen)
-                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X - Player.MovementRange * 4, 
-                            Player.TimeMoves.Peek().Y));
+                        AddTimeMove(-Player.MovementRange * 4, 0);
                     else ChangePlayerDirection(Direction.Left);
                     break;
                 case Keys.S:
                     if (MapController.State == GameState.Frozen)
-                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X, 
-                            Player.TimeMoves.Peek().Y + Player.MovementRange * 4));
+                        AddTimeMove(0, Player.MovementRange * 4);
                     else ChangePlayerDirection(Direction.Down);
                     break;
                 case Keys.D:
                     if (MapController.State == GameState.Frozen)
-                        Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X + Player.MovementRange * 4, 
-                            Player.TimeMoves.Peek().Y));
+                        AddTimeMove(Player.MovementRange * 4, 0);
                     else ChangePlayerDirection(Direction.Right);
                     break;
                 case Keys.Space:
@@ -100,6 +96,11 @@ namespace Timeshift.Views
                     break;
             }
             Stopwatch.Restart();
+        }
+
+        private void AddTimeMove(int dx, int dy)
+        {
+            Player.TimeMoves.Push(new TilePoint(Player.TimeMoves.Peek().X + dx, Player.TimeMoves.Peek().Y + dy));
         }
 
         private void ChangePlayerDirection(Direction direction)
@@ -152,6 +153,7 @@ namespace Timeshift.Views
                 if (enemy.Defeated) continue;
                 enemy.SetDirection(Player.Position);
                 enemy.Move();
+                enemy.Attack(Player);
             }
             Invalidate();
         }
@@ -171,9 +173,37 @@ namespace Timeshift.Views
             if (Stopwatch.ElapsedMilliseconds >= 10000)
                 Player.SetAnimationConfiguration(AnimationType.Waiting);
 
+            ShowPlayerHealth(g);
+            //DrawDebugInfo(g);
+        }
 
+        private void ShowPlayerHealth(Graphics g)
+        {
+            DrawHeart(g, 16, 16, 1);
+            DrawHeart(g, 48, 16, 2);
+            DrawHeart(g, 80, 16, 3);
+        }
 
-            DrawDebugInfo(g);
+        private void DrawHeart(Graphics g, int x, int y, int heartPos)
+        {
+            if (Player.Health >= heartPos) DrawFullHeart(g, new Point(x, y));
+            else if (Player.Health == heartPos - 0.5) DrawDamagedHeart(g, new Point(x, y));
+            else DrawEmptyHeart(g, new Point(x, y));
+        }
+
+        private void DrawFullHeart(Graphics g, Point point)
+        {
+            g.DrawImage(TilesSheet, new Rectangle(point, new Size(32, 32)), 18 * 16, 16 * 16, 16, 16, GraphicsUnit.Pixel);
+        }
+
+        private void DrawDamagedHeart(Graphics g, Point point)
+        {
+            g.DrawImage(TilesSheet, new Rectangle(point, new Size(32, 32)), 19 * 16, 16 * 16, 16, 16, GraphicsUnit.Pixel);
+        }
+
+        private void DrawEmptyHeart(Graphics g, Point point)
+        {
+            g.DrawImage(TilesSheet, new Rectangle(point, new Size(32, 32)), 20 * 16, 16 * 16, 16, 16, GraphicsUnit.Pixel);
         }
 
         private void DrawDebugInfo(Graphics g)
@@ -183,6 +213,7 @@ namespace Timeshift.Views
             g.DrawString((Stopwatch.ElapsedMilliseconds / 1000).ToString() + " s", new Font("Arial", 16),
                 new SolidBrush(Color.White), new PointF(Width - 176, 48));
             foreach (var enemy in MapController.Enemies)
+                if (!enemy.Defeated)
                 g.DrawString(enemy.Health.ToString(), new Font("Arial", 16),
                 new SolidBrush(Color.Red), new PointF(enemy.Position.X - 8, enemy.Position.Y - 8));
         }

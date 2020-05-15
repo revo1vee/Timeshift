@@ -7,14 +7,12 @@ namespace Timeshift.Domain
     public class Enemy : Entity
     {
         public bool Defeated;
+        public double Damage;
 
-        public Enemy(TilePoint position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
+        public Enemy(TilePoint position, int runFrames, Image spriteSheet)
         {
             Position = position;
-            IdleFrames = 8;
             RunFrames = runFrames;
-            AttackFrames = attackFrames;
-            WaitingFrames = waitFrames;
             SpriteSheet = spriteSheet;
             MovementRange = 4;
             Direction = Direction.Right;
@@ -22,10 +20,11 @@ namespace Timeshift.Domain
             MoveDirection = new TilePoint();
             SizeX = 16;
             SizeY = 16;
-            CurrentAnimation = AnimationType.Idle;
+            CurrentAnimation = AnimationType.Run;
             CurrentFrame = 0;
             CurrentFrameLimit = IdleFrames;
             Health = 3;
+            Damage = 0.5;
         }
 
         public void SetDirection(TilePoint playerPos)
@@ -63,20 +62,15 @@ namespace Timeshift.Domain
             IsMoving = MoveDirection.Equals(new TilePoint()) ? false : true;
         }
 
-        public void Attack()
+        public void Attack(Player player)
         {
             if (MapController.State == GameState.Normal)
             {
-                var attackRange = Direction == Direction.Right ? MapController.TileSize
-                    : (Direction == Direction.Left ? -MapController.TileSize : 0);
-                foreach (var enemy in MapController.Enemies)
-                {
-                    if (MapController.GetPointFromCoordinates(new TilePoint(Position.X + attackRange, Position.Y))
-                        .Equals(MapController.GetPointFromCoordinates(new TilePoint(enemy.Position.X, enemy.Position.Y))))
-                        enemy.Health--;
-                    if (enemy.Health == 0)
-                        enemy.Defeated = true;
-                }
+                if (MapController.GetPointFromCoordinates(new TilePoint(Position.X, Position.Y))
+                    .Equals(MapController.GetPointFromCoordinates(new TilePoint(player.Position.X, player.Position.Y))))
+                    player.Health -= Damage;
+                if (player.Health == 0)
+                    MapController.State = GameState.Frozen;
             }
         }
 

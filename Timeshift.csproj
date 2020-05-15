@@ -59,6 +59,7 @@
     <Compile Include="Domain\Player.cs" />
     <Compile Include="Domain\TilePoint.cs" />
     <Compile Include="Domain\SinglyLinkedList.cs" />
+    <Compile Include="Models\EnemyModel.cs" />
     <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
