@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Timeshift));
             this.Timer = new System.Windows.Forms.Timer(this.components);
+            this.EnemyMoveRate = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // Timeshift
@@ -51,5 +52,6 @@
         #endregion
 
         private System.Windows.Forms.Timer Timer;
+        private System.Windows.Forms.Timer EnemyMoveRate;
     }
 }

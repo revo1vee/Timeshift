@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using Timeshift.Controllers;
 using Timeshift.Domain;
@@ -40,6 +39,7 @@ namespace Timeshift.Views
             Height = MapController.GetPixelHeight();
             Width = MapController.GetPixelWidth();
             Timer.Start();
+            EnemyMoveRate.Start();
             Stopwatch = Stopwatch.StartNew();
         }
 
@@ -52,10 +52,10 @@ namespace Timeshift.Views
                 PlayerModel.WaitingFrames, PlayerSheet);
 
             EnemySheet = new Bitmap(Path.Combine(new DirectoryInfo(
-                Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Player.png"));
+                Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
 
-            Enemy = new Enemy(new TilePoint(336, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
-                PlayerModel.WaitingFrames, PlayerSheet);
+            Enemy = new Enemy(new TilePoint(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+                PlayerModel.WaitingFrames, EnemySheet);
 
             MapController.Enemies.Add(Enemy);
         }
@@ -149,7 +149,9 @@ namespace Timeshift.Views
             if (Player.IsMoving) Player.Move();
             foreach (var enemy in MapController.Enemies)
             {
-                
+                if (enemy.Defeated) continue;
+                enemy.SetDirection(Player.Position);
+                enemy.Move();
             }
             Invalidate();
         }
@@ -161,10 +163,15 @@ namespace Timeshift.Views
             MapController.DrawMap(g);
             Player.PlayAnimation(g);
             foreach (var enemy in MapController.Enemies)
+            {
+                if (enemy.Defeated) continue;
                 enemy.PlayAnimation(g);
+            }
 
             if (Stopwatch.ElapsedMilliseconds >= 10000)
                 Player.SetAnimationConfiguration(AnimationType.Waiting);
+
+
 
             DrawDebugInfo(g);
         }
