@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using Timeshift.Controllers;
 
@@ -11,9 +12,17 @@ namespace Timeshift.Domain
         public int SpriteID;
         public Action<Player> AttackPattern;
         public bool IsProtected;
+        public Stopwatch RandomMovement = new Stopwatch();
 
         public void SetDirection(TilePoint playerPos)
         {
+            var rnd = new Random();
+            if (RandomMovement.IsRunning)
+            {
+                MoveDirection.X = rnd.Next(-1, 1);
+                MoveDirection.Y = rnd.Next(-1, 1);
+                return;
+            }
             if (playerPos.X > Position.X)
             {
                 Direction = Direction.Right;

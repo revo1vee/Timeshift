@@ -30,8 +30,14 @@ namespace Timeshift.Controllers
 
         public static void SpawnEnemies(Image spriteSheet)
         {
-            Enemies.Add(new SmallOrc(new TilePoint(352, 144), EnemyModel.OrcFrames, spriteSheet));
-            Enemies.Add(new MaskedOrc(new TilePoint(352, 352), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new MaskedOrc(new TilePoint(32 * 1 + 16, 32 * -1 + 16), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new MaskedOrc(new TilePoint(32 * 18 + 16, 32 * -1 + 16), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new MaskedOrc(new TilePoint(32 * 1 + 16, 32 * 16 + 16), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new MaskedOrc(new TilePoint(32 * 18 + 16, 32 * 16 + 16), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new SmallOrc(new TilePoint(32 * 16, 32 * 14), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new SmallOrc(new TilePoint(32 * 16, 32 * 2), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new SmallOrc(new TilePoint(32 * 4, 32 * 2), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new SmallOrc(new TilePoint(32 * 4, 32 * 14), EnemyModel.OrcFrames, spriteSheet));
         }
 
         public static void SetTilesSprites()
