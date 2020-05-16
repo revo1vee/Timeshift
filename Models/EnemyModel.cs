@@ -2,6 +2,6 @@
 {
     public class EnemyModel
     {
-        public static int RunFrames = 8;
+        public static int OrcFrames = 8;
     }
 }

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using Timeshift.Domain;
+using Timeshift.Models;
 
 namespace Timeshift.Controllers
 {
@@ -24,6 +25,12 @@ namespace Timeshift.Controllers
             Enemies = new HashSet<Enemy>();
             TilesSprites = new Dictionary<int, TilePoint>();
             SetTilesSprites();
+        }
+
+        public static void SpawnEnemies(Image spriteSheet)
+        {
+            Enemies.Add(new SmallOrc(new TilePoint(352, 144), EnemyModel.OrcFrames, spriteSheet));
+            Enemies.Add(new MaskedOrc(new TilePoint(352, 352), EnemyModel.OrcFrames, spriteSheet));
         }
 
         public static void SetTilesSprites()

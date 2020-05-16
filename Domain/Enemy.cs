@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
 using Timeshift.Controllers;
 
@@ -8,24 +8,8 @@ namespace Timeshift.Domain
     {
         public bool Defeated;
         public double Damage;
-
-        public Enemy(TilePoint position, int runFrames, Image spriteSheet)
-        {
-            Position = position;
-            RunFrames = runFrames;
-            SpriteSheet = spriteSheet;
-            MovementRange = 4;
-            Direction = Direction.Right;
-            Flip = 1;
-            MoveDirection = new TilePoint();
-            SizeX = 16;
-            SizeY = 16;
-            CurrentAnimation = AnimationType.Run;
-            CurrentFrame = 0;
-            CurrentFrameLimit = IdleFrames;
-            Health = 3;
-            Damage = 0.5;
-        }
+        public int SpriteID;
+        public Action<Player> AttackPattern;
 
         public void SetDirection(TilePoint playerPos)
         {
@@ -64,31 +48,7 @@ namespace Timeshift.Domain
 
         public void Attack(Player player)
         {
-            if (MapController.State == GameState.Normal)
-            {
-                if (MapController.GetPointFromCoordinates(new TilePoint(Position.X, Position.Y))
-                    .Equals(MapController.GetPointFromCoordinates(new TilePoint(player.Position.X, player.Position.Y))))
-                    player.Health -= Damage;
-                if (player.Health == 0)
-                    MapController.State = GameState.Frozen;
-            }
-        }
-
-        public IEnumerable<SinglyLinkedList<TilePoint>> FindPathsToPlayer(TilePoint start, TilePoint target)
-        {
-            var visited = new HashSet<TilePoint>();
-            var queue = new Queue<SinglyLinkedList<TilePoint>>();
-            queue.Enqueue(new SinglyLinkedList<TilePoint>(start));
-            while (queue.Count != 0)
-            {
-                var path = queue.Dequeue();
-                if (!MapController.InBounds(path.Value.X, path.Value.Y) || visited.Contains(path.Value)
-                    || true) continue;
-                visited.Add(path.Value);
-                if (path.Value == target) yield return path;
-                foreach (var direction in PossibleDirections())
-                    queue.Enqueue(new SinglyLinkedList<TilePoint>(path.Value + direction));
-            }
+            AttackPattern(player);
         }
 
         public void PlayAnimation(Graphics g)
@@ -107,7 +67,7 @@ namespace Timeshift.Domain
         private void DrawEnemy(Graphics g)
         {
             g.DrawImage(SpriteSheet, new Rectangle(new Point(Position.X - Flip * SizeX, Position.Y + 32), 
-                new Size(Flip * SizeX * 2, SizeY * 2)), 16 * (23 + CurrentFrame), 16 * 2, SizeX, SizeY, GraphicsUnit.Pixel);
+                new Size(Flip * SizeX * 2, SizeY * 2)), 16 * (23 + CurrentFrame), 16 * SpriteID, SizeX, SizeY, GraphicsUnit.Pixel);
         }
     }
 }

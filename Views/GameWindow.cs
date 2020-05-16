@@ -14,8 +14,8 @@ namespace Timeshift.Views
         public Image PlayerSheet;
         public Image TilesSheet;
         public Player Player;
-        public Enemy Enemy;
-        public Stopwatch Stopwatch;
+        public Stopwatch WaitingAnimationTrigger;
+        public Stopwatch IFrames;
 
         public Timeshift()
         {
@@ -41,7 +41,7 @@ namespace Timeshift.Views
             Width = MapController.GetPixelWidth();
             Timer.Start();
             EnemyMoveRate.Start();
-            Stopwatch = Stopwatch.StartNew();
+            WaitingAnimationTrigger = Stopwatch.StartNew();
         }
 
         private void InitializeEntities()
@@ -55,9 +55,7 @@ namespace Timeshift.Views
             Player = new Player(new TilePoint(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
-            Enemy = new Enemy(new TilePoint(352, 144), EnemyModel.RunFrames, TilesSheet);
-
-            MapController.Enemies.Add(Enemy);
+            MapController.SpawnEnemies(TilesSheet);
         }
 
         public void OnPress(object sender, KeyEventArgs e)
@@ -95,7 +93,7 @@ namespace Timeshift.Views
                     Initialize();
                     break;
             }
-            Stopwatch.Restart();
+            WaitingAnimationTrigger.Restart();
         }
 
         private void AddTimeMove(int dx, int dy)
@@ -148,6 +146,7 @@ namespace Timeshift.Views
         public void Update(object sender, EventArgs e)
         {
             if (Player.IsMoving) Player.Move();
+            if (Player.IFrames.ElapsedMilliseconds >= 1000) Player.IFrames.Reset();
             foreach (var enemy in MapController.Enemies)
             {
                 if (enemy.Defeated) continue;
@@ -170,7 +169,7 @@ namespace Timeshift.Views
                 enemy.PlayAnimation(g);
             }
 
-            if (Stopwatch.ElapsedMilliseconds >= 10000)
+            if (WaitingAnimationTrigger.ElapsedMilliseconds >= 10000)
                 Player.SetAnimationConfiguration(AnimationType.Waiting);
 
             ShowPlayerHealth(g);
@@ -210,7 +209,7 @@ namespace Timeshift.Views
         {
             g.DrawString(Player.Position.ToString(), new Font("Arial", 16),
                 new SolidBrush(Color.White), new PointF(Width - 176, 16));
-            g.DrawString((Stopwatch.ElapsedMilliseconds / 1000).ToString() + " s", new Font("Arial", 16),
+            g.DrawString((WaitingAnimationTrigger.ElapsedMilliseconds / 1000).ToString() + " s", new Font("Arial", 16),
                 new SolidBrush(Color.White), new PointF(Width - 176, 48));
             foreach (var enemy in MapController.Enemies)
                 if (!enemy.Defeated)

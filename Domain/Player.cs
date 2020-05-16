@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using Timeshift.Controllers;
 
@@ -8,6 +9,7 @@ namespace Timeshift.Domain
     public class Player : Entity
     {
         public Stack<TilePoint> TimeMoves;
+        public Stopwatch IFrames;
 
         public Player(TilePoint position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
         {
@@ -29,6 +31,7 @@ namespace Timeshift.Domain
             Health = 3;
             TimeMoves = new Stack<TilePoint>();
             TimeMoves.Push(Position);
+            IFrames = new Stopwatch();
         }
 
         public void Attack()
@@ -43,6 +46,14 @@ namespace Timeshift.Domain
                         enemy.Defeated = true;
                 }
             }
+        }
+
+        public void TakeDamage(double damage)
+        {
+            if (IFrames.IsRunning) return;
+            Health -= damage;
+            if (Health == 0) MapController.State = GameState.Frozen;
+            IFrames.Start();
         }
 
         private bool IsAttackInRange(Enemy enemy)
@@ -73,6 +84,7 @@ namespace Timeshift.Domain
         {
             CheckAttackAnimationFrame();
             SetFrame();
+            if (IFrames.ElapsedMilliseconds % 100 > 10 && IFrames.ElapsedMilliseconds % 100 < 90) return;
             DrawPlayer(g);
         }
 
