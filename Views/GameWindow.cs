@@ -15,7 +15,6 @@ namespace Timeshift.Views
         public Image TilesSheet;
         public Player Player;
         public Stopwatch WaitingAnimationTrigger;
-        public Stopwatch IFrames;
 
         public Timeshift()
         {
@@ -40,7 +39,6 @@ namespace Timeshift.Views
             Height = MapController.GetPixelHeight();
             Width = MapController.GetPixelWidth();
             Timer.Start();
-            EnemyMoveRate.Start();
             WaitingAnimationTrigger = Stopwatch.StartNew();
         }
 
@@ -88,6 +86,8 @@ namespace Timeshift.Views
                     break;
                 case Keys.ShiftKey:
                     MapController.State = GameState.Frozen;
+                    Player.FreezedTime.Start();
+                    MapController.LastPlayerPosition = new TilePoint(Player.Position.X, Player.Position.Y);
                     break;
                 case Keys.R:
                     Initialize();
@@ -132,6 +132,7 @@ namespace Timeshift.Views
                     break;
                 case Keys.ShiftKey:
                     MapController.State = GameState.Normal;
+                    Player.FreezedTime.Reset();
                     Player.TimeDash();
                     break;
             }
@@ -146,11 +147,21 @@ namespace Timeshift.Views
         public void Update(object sender, EventArgs e)
         {
             if (Player.IsMoving) Player.Move();
+            if (PhysicsController.IsSpikeAt(Player.Position)) Player.TakeDamage(0.5);
+            if (Player.FreezedTime.ElapsedMilliseconds >= 5000)
+            {
+                Player.TimeDash();
+                MapController.State = GameState.Normal;
+                Player.FreezedTime.Reset();
+            }
             if (Player.IFrames.ElapsedMilliseconds >= 1000) Player.IFrames.Reset();
+            if (Player.TimeAfterDash.ElapsedMilliseconds >= 1000) Player.TimeAfterDash.Reset();
             foreach (var enemy in MapController.Enemies)
             {
                 if (enemy.Defeated) continue;
-                enemy.SetDirection(Player.Position);
+                if (Player.TimeAfterDash.IsRunning && Player.TimeAfterDash.ElapsedMilliseconds <= 1000)
+                    enemy.SetDirection(MapController.LastPlayerPosition);
+                else enemy.SetDirection(Player.Position);
                 enemy.Move();
                 enemy.Attack(Player);
             }
@@ -178,9 +189,8 @@ namespace Timeshift.Views
 
         private void ShowPlayerHealth(Graphics g)
         {
-            DrawHeart(g, 16, 16, 1);
-            DrawHeart(g, 48, 16, 2);
-            DrawHeart(g, 80, 16, 3);
+            for (int i = 1; i <= Player.InitialHealth; i++)
+                DrawHeart(g, 16 * i + 16 * (i - 1), 16, i);
         }
 
         private void DrawHeart(Graphics g, int x, int y, int heartPos)

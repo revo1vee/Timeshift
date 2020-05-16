@@ -22,6 +22,7 @@ namespace Timeshift.Domain
             CurrentFrameLimit = IdleFrames;
             Health = 3;
             Damage = 1;
+            IsProtected = true;
             AttackPattern = (player) =>
             {
                 if (MapController.State == GameState.Normal)

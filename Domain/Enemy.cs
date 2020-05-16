@@ -10,6 +10,7 @@ namespace Timeshift.Domain
         public double Damage;
         public int SpriteID;
         public Action<Player> AttackPattern;
+        public bool IsProtected;
 
         public void SetDirection(TilePoint playerPos)
         {

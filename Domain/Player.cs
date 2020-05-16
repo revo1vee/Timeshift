@@ -10,6 +10,9 @@ namespace Timeshift.Domain
     {
         public Stack<TilePoint> TimeMoves;
         public Stopwatch IFrames;
+        public Stopwatch FreezedTime;
+        public Stopwatch TimeAfterDash;
+        public double InitialHealth;
 
         public Player(TilePoint position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
         {
@@ -28,10 +31,13 @@ namespace Timeshift.Domain
             CurrentFrame = 0;
             CurrentFrameLimit = IdleFrames;
             Flip = 1;
-            Health = 3;
+            Health = 5;
+            InitialHealth = Health;
             TimeMoves = new Stack<TilePoint>();
             TimeMoves.Push(Position);
             IFrames = new Stopwatch();
+            TimeAfterDash = new Stopwatch();
+            FreezedTime = new Stopwatch();
         }
 
         public void Attack()
@@ -40,6 +46,7 @@ namespace Timeshift.Domain
             {
                 foreach (var enemy in MapController.Enemies)
                 {
+                    if (enemy.IsProtected && (int)enemy.Direction == -(int)Direction) return;
                     if (IsAttackInRange(enemy))
                         enemy.Health--;
                     if (enemy.Health == 0)
@@ -52,8 +59,8 @@ namespace Timeshift.Domain
         {
             if (IFrames.IsRunning) return;
             Health -= damage;
-            if (Health == 0) MapController.State = GameState.Frozen;
-            IFrames.Start();
+            if (Health <= 0) MapController.State = GameState.Frozen;
+            else IFrames.Start();
         }
 
         private bool IsAttackInRange(Enemy enemy)
@@ -78,6 +85,7 @@ namespace Timeshift.Domain
             }
             TimeMoves = new Stack<TilePoint>();
             TimeMoves.Push(Position);
+            TimeAfterDash.Start();
         }
 
         public void PlayAnimation(Graphics g)
