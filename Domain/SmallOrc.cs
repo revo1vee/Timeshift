@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using Timeshift.Controllers;
 
 namespace Timeshift.Domain
@@ -20,6 +21,8 @@ namespace Timeshift.Domain
             CurrentAnimation = AnimationType.Run;
             CurrentFrame = 0;
             CurrentFrameLimit = IdleFrames;
+            RandomMovementDuration = new Stopwatch();
+            RandomMovementTrigger = Stopwatch.StartNew();
             Health = 3;
             Damage = 0.5;
             AttackPattern = (player) =>

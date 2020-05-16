@@ -31,7 +31,7 @@ namespace Timeshift.Domain
             CurrentFrame = 0;
             CurrentFrameLimit = IdleFrames;
             Flip = 1;
-            Health = 5;
+            Health = 3;
             InitialHealth = Health;
             TimeMoves = new Stack<TilePoint>();
             TimeMoves.Push(Position);

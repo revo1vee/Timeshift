@@ -159,9 +159,12 @@ namespace Timeshift.Views
             foreach (var enemy in MapController.Enemies)
             {
                 if (enemy.Defeated) continue;
-                if (Player.TimeAfterDash.IsRunning && Player.TimeAfterDash.ElapsedMilliseconds <= 1000)
-                    enemy.SetDirection(MapController.LastPlayerPosition);
-                else enemy.SetDirection(Player.Position);
+                else
+                {
+                    if (Player.TimeAfterDash.IsRunning && Player.TimeAfterDash.ElapsedMilliseconds <= 1000)
+                        enemy.SetDirection(MapController.LastPlayerPosition);
+                    else enemy.SetDirection(Player.Position);
+                }
                 enemy.Move();
                 enemy.Attack(Player);
             }

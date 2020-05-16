@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using Timeshift.Controllers;
 
 namespace Timeshift.Domain
@@ -23,6 +24,8 @@ namespace Timeshift.Domain
             Health = 3;
             Damage = 1;
             IsProtected = true;
+            RandomMovementDuration = new Stopwatch();
+            RandomMovementTrigger = Stopwatch.StartNew();
             AttackPattern = (player) =>
             {
                 if (MapController.State == GameState.Normal)
