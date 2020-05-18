@@ -31,6 +31,16 @@ namespace Timeshift.Domain
         {
             if (MapController.State == GameState.Normal)
             {
+                if (this is Enemy)
+                {
+                    foreach (var enemy in MapController.Enemies)
+                    {
+                        if (enemy.Defeated || enemy.Position.Equals(Position)) continue;
+                        if (MapController.GetPointFromCoordinates(enemy.Position)
+                            .Equals(MapController.GetPointFromCoordinates(new TilePoint(Position.X + MoveDirection.X * MovementRange + 15 * MoveDirection.X,
+                            Position.Y + MoveDirection.Y * MovementRange)))) return;
+                    }
+                }
                 if (!PhysicsController.IsCollide(new TilePoint(Position.X + MoveDirection.X * MovementRange + 15 * MoveDirection.X, Position.Y))) 
                     Position.X += MoveDirection.X * MovementRange;
                 if (!PhysicsController.IsCollide(new TilePoint(Position.X, Position.Y + MoveDirection.Y * MovementRange)))

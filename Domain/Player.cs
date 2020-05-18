@@ -14,6 +14,15 @@ namespace Timeshift.Domain
         public Stopwatch TimeAfterDash;
         public double InitialHealth;
 
+        public Player(TilePoint position)
+        {
+            Position = position;
+            TimeMoves = new Stack<TilePoint>();
+            TimeMoves.Push(Position);
+            TimeAfterDash = new Stopwatch();
+            IFrames = new Stopwatch();
+        }
+
         public Player(TilePoint position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
         {
             Position = position;
@@ -67,6 +76,7 @@ namespace Timeshift.Domain
         {
             var attackRange = Direction == Direction.Right ? MapController.TileSize
                 : (Direction == Direction.Left ? -MapController.TileSize : 0);
+            if (PhysicsController.IsCollide(new TilePoint(Position.X + attackRange, Position.Y))) return false;
             var attackPoint = MapController.GetPointFromCoordinates(new TilePoint(Position.X + attackRange, Position.Y));
             var enemyPos = MapController.GetPointFromCoordinates(new TilePoint(enemy.Position.X, enemy.Position.Y));
             return Math.Abs(attackPoint.X - enemyPos.X) < 2 && attackPoint.Y == enemyPos.Y;

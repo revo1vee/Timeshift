@@ -34,7 +34,6 @@ namespace Timeshift.Views
         public void Initialize()
         {
             MapController.Initialize();
-            MapController.State = GameState.Normal;
             InitializeEntities();
             Height = MapController.GetPixelHeight();
             Width = MapController.GetPixelWidth();

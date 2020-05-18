@@ -8,9 +8,9 @@ namespace Timeshift.Controllers
 {
     public static class MapController
     {
-        public const int MapHeight = 20;
-        public const int MapWidth = 20;
-        public static int[,] Map = new int[MapHeight, MapWidth];
+        public static int[,] Map = new int[20, 20];
+        public static int MapWidth;
+        public static int MapHeight;
         public static Image SpriteSheet;
         public static Dictionary<int, TilePoint> TilesSprites;
         public const int TileSize = 32;
@@ -21,6 +21,8 @@ namespace Timeshift.Controllers
         public static void Initialize()
         {
             Map = GetMap();
+            MapWidth = Map.GetLength(0);
+            MapHeight = Map.GetLength(1);
             SpriteSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
             Enemies = new HashSet<Enemy>();

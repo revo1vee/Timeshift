@@ -6,6 +6,21 @@ namespace Timeshift.Domain
 {
     public class SmallOrc : Enemy
     {
+        public SmallOrc(TilePoint position)
+        {
+            Position = position;
+            MoveDirection = new TilePoint(); 
+            AttackPattern = (player) =>
+            {
+                if (MapController.State == GameState.Normal)
+                {
+                    if (MapController.GetPointFromCoordinates(new TilePoint(Position.X, Position.Y))
+                        .Equals(MapController.GetPointFromCoordinates(new TilePoint(player.Position.X, player.Position.Y))))
+                        player.TakeDamage(Damage);
+                }
+            };
+        }
+
         public SmallOrc(TilePoint position, int runFrames, Image spriteSheet)
         {
             Position = position;
@@ -21,8 +36,6 @@ namespace Timeshift.Domain
             CurrentAnimation = AnimationType.Run;
             CurrentFrame = 0;
             CurrentFrameLimit = IdleFrames;
-            RandomMovementDuration = new Stopwatch();
-            RandomMovementTrigger = Stopwatch.StartNew();
             Health = 3;
             Damage = 0.5;
             AttackPattern = (player) =>

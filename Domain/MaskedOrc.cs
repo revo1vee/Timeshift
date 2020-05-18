@@ -6,6 +6,11 @@ namespace Timeshift.Domain
 {
     public class MaskedOrc : Enemy
     {
+        public MaskedOrc(TilePoint position)
+        {
+            Position = position;
+        }
+
         public MaskedOrc(TilePoint position, int runFrames, Image spriteSheet)
         {
             Position = position;
@@ -24,8 +29,6 @@ namespace Timeshift.Domain
             Health = 3;
             Damage = 1;
             IsProtected = true;
-            RandomMovementDuration = new Stopwatch();
-            RandomMovementTrigger = Stopwatch.StartNew();
             AttackPattern = (player) =>
             {
                 if (MapController.State == GameState.Normal)
