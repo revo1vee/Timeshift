@@ -49,7 +49,7 @@ namespace Timeshift.Views
             TilesSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
 
-            Player = new Player(new TilePoint(176, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
+            Player = new Player(new TilePoint(336, 144), PlayerModel.IdleFrames, PlayerModel.RunFrames, PlayerModel.AttackFrames,
                 PlayerModel.WaitingFrames, PlayerSheet);
 
             MapController.SpawnEnemies(TilesSheet);
