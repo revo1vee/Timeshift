@@ -9,10 +9,10 @@ namespace Timeshift.Domain
     public class Player : Entity
     {
         public Stack<TilePoint> TimeMoves;
-        public Stopwatch IFrames;
-        public Stopwatch FreezedTime;
-        public Stopwatch TimeAfterDash;
-        public double InitialHealth;
+        public readonly Stopwatch InvincibilityFrames;
+        public readonly Stopwatch FreezedTime;
+        public readonly Stopwatch TimeAfterDash;
+        public readonly double InitialHealth;
 
         public Player(TilePoint position)
         {
@@ -20,7 +20,7 @@ namespace Timeshift.Domain
             TimeMoves = new Stack<TilePoint>();
             TimeMoves.Push(Position);
             TimeAfterDash = new Stopwatch();
-            IFrames = new Stopwatch();
+            InvincibilityFrames = new Stopwatch();
         }
 
         public Player(TilePoint position, int idleFrames, int runFrames, int attackFrames, int waitFrames, Image spriteSheet)
@@ -44,7 +44,7 @@ namespace Timeshift.Domain
             InitialHealth = Health;
             TimeMoves = new Stack<TilePoint>();
             TimeMoves.Push(Position);
-            IFrames = new Stopwatch();
+            InvincibilityFrames = new Stopwatch();
             TimeAfterDash = new Stopwatch();
             FreezedTime = new Stopwatch();
         }
@@ -52,24 +52,19 @@ namespace Timeshift.Domain
         public void Attack()
         {
             if (MapController.State == GameState.Normal)
-            {
                 foreach (var enemy in MapController.Enemies)
                 {
-                    if (enemy.IsProtected && (int)enemy.Direction == -(int)Direction) return;
-                    if (IsAttackInRange(enemy))
-                        enemy.Health--;
-                    if (enemy.Health == 0)
-                        enemy.Defeated = true;
+                    if (enemy.IsProtected && (int)enemy.Direction == -(int)Direction) continue;
+                    if (IsAttackInRange(enemy)) enemy.Health--;
+                    if (enemy.Health == 0) enemy.Defeated = true;
                 }
-            }
         }
 
         public void TakeDamage(double damage)
         {
-            if (IFrames.IsRunning) return;
+            if (InvincibilityFrames.IsRunning) return;
             Health -= damage;
-            if (Health <= 0) MapController.State = GameState.Frozen;
-            else IFrames.Start();
+            InvincibilityFrames.Start();
         }
 
         private bool IsAttackInRange(Enemy enemy)
@@ -79,7 +74,7 @@ namespace Timeshift.Domain
             if (PhysicsController.IsCollide(new TilePoint(Position.X + attackRange, Position.Y))) return false;
             var attackPoint = MapController.GetPointFromCoordinates(new TilePoint(Position.X + attackRange, Position.Y));
             var enemyPos = MapController.GetPointFromCoordinates(new TilePoint(enemy.Position.X, enemy.Position.Y));
-            return Math.Abs(attackPoint.X - enemyPos.X) < 2 && attackPoint.Y == enemyPos.Y;
+            return Math.Abs(attackPoint.X - enemyPos.X) < 2 && (attackPoint.Y == enemyPos.Y || attackPoint.Y - enemyPos.Y == 1);
         }
 
         public void TimeDash()
@@ -102,7 +97,7 @@ namespace Timeshift.Domain
         {
             CheckAttackAnimationFrame();
             SetFrame();
-            if (IFrames.ElapsedMilliseconds % 100 > 10 && IFrames.ElapsedMilliseconds % 100 < 90) return;
+            if (InvincibilityFrames.ElapsedMilliseconds % 100 > 10 && InvincibilityFrames.ElapsedMilliseconds % 100 < 90) return;
             DrawPlayer(g);
         }
 

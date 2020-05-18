@@ -80,8 +80,11 @@ namespace Timeshift.Views
                     else ChangePlayerDirection(Direction.Right);
                     break;
                 case Keys.Space:
-                    Player.Attack();
-                    Player.SetAnimationConfiguration(AnimationType.Attack);
+                    if (Player.CurrentAnimation != AnimationType.Attack)
+                    {
+                        Player.Attack();
+                        Player.SetAnimationConfiguration(AnimationType.Attack);
+                    }
                     break;
                 case Keys.ShiftKey:
                     MapController.State = GameState.Frozen;
@@ -110,6 +113,7 @@ namespace Timeshift.Views
             else Player.MoveDirection.Y = (int)direction / 2;
             Player.Flip = direction == Direction.Right ? 1 : (direction == Direction.Left ? -1 : Player.Flip);
             Player.IsMoving = true;
+            if (Player.CurrentAnimation != AnimationType.Attack)
             Player.SetAnimationConfiguration(AnimationType.Run);
         }
 
@@ -145,6 +149,11 @@ namespace Timeshift.Views
 
         public void Update(object sender, EventArgs e)
         {
+            if (Player.Health <= 0)
+            {
+                MapController.State = GameState.Frozen;
+                return;
+            }
             if (Player.IsMoving) Player.Move();
             if (PhysicsController.IsSpikeAt(Player.Position)) Player.TakeDamage(0.5);
             if (Player.FreezedTime.ElapsedMilliseconds >= 5000)
@@ -153,7 +162,7 @@ namespace Timeshift.Views
                 MapController.State = GameState.Normal;
                 Player.FreezedTime.Reset();
             }
-            if (Player.IFrames.ElapsedMilliseconds >= 1000) Player.IFrames.Reset();
+            if (Player.InvincibilityFrames.ElapsedMilliseconds >= 1000) Player.InvincibilityFrames.Reset();
             if (Player.TimeAfterDash.ElapsedMilliseconds >= 1000) Player.TimeAfterDash.Reset();
             foreach (var enemy in MapController.Enemies)
             {
@@ -186,7 +195,7 @@ namespace Timeshift.Views
                 Player.SetAnimationConfiguration(AnimationType.Waiting);
 
             ShowPlayerHealth(g);
-            //DrawDebugInfo(g);
+            //ShowDebugInfo(g);
         }
 
         private void ShowPlayerHealth(Graphics g)
@@ -217,7 +226,7 @@ namespace Timeshift.Views
             g.DrawImage(TilesSheet, new Rectangle(point, new Size(32, 32)), 20 * 16, 16 * 16, 16, 16, GraphicsUnit.Pixel);
         }
 
-        private void DrawDebugInfo(Graphics g)
+        private void ShowDebugInfo(Graphics g)
         {
             g.DrawString(Player.Position.ToString(), new Font("Arial", 16),
                 new SolidBrush(Color.White), new PointF(Width - 176, 16));

@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-namespace Timeshift.Domain
+﻿namespace Timeshift.Domain
 {
     public enum Direction
     {

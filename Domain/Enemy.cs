@@ -9,7 +9,7 @@ namespace Timeshift.Domain
         public bool Defeated;
         public double Damage;
         public int SpriteID;
-        public Action<Player> AttackPattern;
+        public Action<Enemy, Player> AttackPattern;
         public bool IsProtected;
 
         public void SetDirection(TilePoint target)
@@ -17,39 +17,26 @@ namespace Timeshift.Domain
             if (target.X > Position.X)
             {
                 Direction = Direction.Right;
-                Flip = 1;
                 MoveDirection.X = 1;
             }
             else if (target.X < Position.X)
             {
                 Direction = Direction.Left;
-                Flip = -1;
                 MoveDirection.X = -1;
             }
-            else
-            {
-                MoveDirection.X = 0;
-            }
-            if (target.Y > Position.Y)
-            {
-                Direction = Direction.Down;
-                MoveDirection.Y = 1;
-            }
-            else if (target.Y < Position.Y)
-            {
-                Direction = Direction.Up;
-                MoveDirection.Y = -1;
-            }
-            else
-            {
-                MoveDirection.Y = 0;
-            }
+            else MoveDirection.X = 0;
+
+            if (target.Y > Position.Y) MoveDirection.Y = 1;
+            else if (target.Y < Position.Y) MoveDirection.Y = -1;
+            else MoveDirection.Y = 0;
+
+            Flip = (int)Direction;
             IsMoving = MoveDirection.Equals(new TilePoint()) ? false : true;
         }
 
         public void Attack(Player player)
         {
-            AttackPattern(player);
+            AttackPattern(this, player);
         }
 
         public void PlayAnimation(Graphics g)

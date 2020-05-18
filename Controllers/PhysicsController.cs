@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Linq;
-using Timeshift.Domain;
+﻿using Timeshift.Domain;
 
 namespace Timeshift.Controllers
 {

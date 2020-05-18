@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing;
-using Timeshift.Controllers;
+﻿using System.Drawing;
 
 namespace Timeshift.Domain
 {
@@ -9,16 +7,8 @@ namespace Timeshift.Domain
         public SmallOrc(TilePoint position)
         {
             Position = position;
-            MoveDirection = new TilePoint(); 
-            AttackPattern = (player) =>
-            {
-                if (MapController.State == GameState.Normal)
-                {
-                    if (MapController.GetPointFromCoordinates(new TilePoint(Position.X, Position.Y))
-                        .Equals(MapController.GetPointFromCoordinates(new TilePoint(player.Position.X, player.Position.Y))))
-                        player.TakeDamage(Damage);
-                }
-            };
+            MoveDirection = new TilePoint();
+            AttackPattern = AttackPatterns.OnTouch;
         }
 
         public SmallOrc(TilePoint position, int runFrames, Image spriteSheet)
@@ -38,15 +28,7 @@ namespace Timeshift.Domain
             CurrentFrameLimit = IdleFrames;
             Health = 3;
             Damage = 0.5;
-            AttackPattern = (player) =>
-            {
-                if (MapController.State == GameState.Normal)
-                {
-                    if (MapController.GetPointFromCoordinates(new TilePoint(Position.X, Position.Y))
-                        .Equals(MapController.GetPointFromCoordinates(new TilePoint(player.Position.X, player.Position.Y))))
-                        player.TakeDamage(Damage);
-                }
-            };
+            AttackPattern = AttackPatterns.OnTouch;
         }
     }
 }

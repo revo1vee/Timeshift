@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 using Timeshift.Controllers;
 
 namespace Timeshift.Domain
@@ -29,15 +28,7 @@ namespace Timeshift.Domain
             Health = 3;
             Damage = 1;
             IsProtected = true;
-            AttackPattern = (player) =>
-            {
-                if (MapController.State == GameState.Normal)
-                {
-                    if (MapController.GetPointFromCoordinates(new TilePoint(Position.X, Position.Y))
-                        .Equals(MapController.GetPointFromCoordinates(new TilePoint(player.Position.X, player.Position.Y))))
-                        player.TakeDamage(Damage);
-                }
-            };
+            AttackPattern = AttackPatterns.OnTouch;
         }
     }
 }

@@ -23,6 +23,7 @@ namespace Timeshift.Controllers
             Map = GetMap();
             MapWidth = Map.GetLength(0);
             MapHeight = Map.GetLength(1);
+            State = GameState.Normal;
             SpriteSheet = new Bitmap(Path.Combine(new DirectoryInfo(
                 Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\Tiles.png"));
             Enemies = new HashSet<Enemy>();
